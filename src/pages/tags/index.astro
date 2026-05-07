@@ -1,0 +1,41 @@
+---
+export const prerender = true;
+
+import { HexTagCloud } from '../../components/blog/HexTagCloud';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import Sidebar from '../../components/sidebar/Sidebar.astro';
+import { SITE_URL } from '../../consts';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageLayout from '../../layouts/PageLayout.astro';
+import { getAllTags } from '../../utils/posts';
+import { getSidebarData } from '../../utils/sidebar';
+
+const tags = await getAllTags();
+const sidebarData = await getSidebarData();
+---
+
+<BaseLayout title="标签">
+  <JsonLd
+    type="breadcrumb"
+    items={[
+      { name: '首页', url: SITE_URL },
+      { name: '标签', url: `${SITE_URL}/tags/` },
+    ]}
+  />
+  <PageLayout layout="two-col-left">
+    <div slot="rightSidebar">
+      <Sidebar data={sidebarData} />
+    </div>
+
+    <div class="content-section">
+      <div class="text-center mb-8 pb-6 border-b border-base-300">
+        <h1 class="page-title-lg">标签</h1>
+        <p class="page-description">共 {tags.length} 个标签</p>
+      </div>
+
+      <div class="min-h-75 md:min-h-50">
+        <HexTagCloud tags={tags} client:load />
+      </div>
+    </div>
+  </PageLayout>
+</BaseLayout>

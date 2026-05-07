@@ -1,0 +1,158 @@
+---
+export const prerender = true;
+
+import { getEntry, render } from 'astro:content';
+import JsonLd from '../components/seo/JsonLd.astro';
+import Sidebar from '../components/sidebar/Sidebar.astro';
+import { SITE_URL } from '../consts';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageLayout from '../layouts/PageLayout.astro';
+import { getSidebarData } from '../utils/sidebar';
+
+const sidebarData = await getSidebarData();
+const aboutEntry = await getEntry('site', 'about');
+
+// Render markdown content if about.md exists
+const { Content } = aboutEntry ? await render(aboutEntry) : { Content: null };
+
+// Get about page metadata
+const pageTitle = aboutEntry?.data.title ?? '关于';
+const name = aboutEntry?.data.name ?? '';
+const email = aboutEntry?.data.email ?? '';
+const github = aboutEntry?.data.github ?? '';
+const twitter = aboutEntry?.data.twitter ?? '';
+const avatar = aboutEntry?.data.avatar ?? '';
+---
+
+<BaseLayout title={pageTitle}>
+  <JsonLd
+    type="breadcrumb"
+    items={[
+      { name: '首页', url: SITE_URL },
+      { name: pageTitle, url: `${SITE_URL}/about/` },
+    ]}
+  />
+  <JsonLd
+    type="person"
+    name={name}
+    url={`${SITE_URL}/about/`}
+    email={email || undefined}
+    image={avatar || undefined}
+    sameAs={[
+      ...(github ? [github] : []),
+      ...(twitter ? [twitter] : []),
+    ]}
+  />
+  <PageLayout layout="two-col-left">
+    <div slot="rightSidebar">
+      <Sidebar data={sidebarData} />
+    </div>
+
+    <div class="content-section">
+      <h1 class="text-3xl font-bold mb-8 text-(--text-primary) text-center">{pageTitle}</h1>
+
+      <div class="text-base leading-relaxed text-(--text-primary)">
+        {avatar && (
+          <div class="flex justify-center mb-6">
+            <img src={avatar} alt={name} class="w-30 h-30 rounded-full object-cover" />
+          </div>
+        )}
+
+        {Content ? (
+          <div class="markdown-content">
+            <Content />
+          </div>
+        ) : (
+          <div class="space-y-8">
+            <section>
+              <h2 class="text-xl font-semibold mb-4">👋 你好</h2>
+              <p>欢迎来到我的博客！我是 {name}，一名热爱技术的开发者。</p>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-semibold mb-4">🛠 技术栈</h2>
+              <div class="flex flex-wrap gap-2">
+                {['Astro', 'React', 'TypeScript', 'Node.js', 'Python', 'Git', 'Docker'].map((tech) => (
+                  <span class="tech-tag">{tech}</span>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-semibold mb-4">📮 联系方式</h2>
+              <ul class="m-0 pl-0 list-none space-y-2.5">
+                {email && (
+                  <li class="flex items-center gap-2 text-(--color-text-secondary)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <a href={`mailto:${email}`}>{email}</a>
+                  </li>
+                )}
+                {github && (
+                  <li class="flex items-center gap-2 text-(--color-text-secondary)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                    <a href={github} target="_blank">{github}</a>
+                  </li>
+                )}
+                {twitter && (
+                  <li class="flex items-center gap-2 text-(--color-text-secondary)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                    <a href={twitter} target="_blank">{twitter}</a>
+                  </li>
+                )}
+              </ul>
+            </section>
+          </div>
+        )}
+      </div>
+    </div>
+  </PageLayout>
+</BaseLayout>
+
+<style>
+  .markdown-content :global(h2) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 24px 0 16px;
+    color: var(--text-primary);
+  }
+
+  .markdown-content :global(p) {
+    margin: 0 0 16px;
+  }
+
+  .markdown-content :global(ul) {
+    margin: 0 0 16px;
+    padding-left: 20px;
+  }
+
+  .markdown-content :global(li) {
+    margin: 8px 0;
+  }
+
+  .markdown-content :global(a) {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .markdown-content :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  .tech-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    font-size: 0.875rem;
+    border-radius: 9999px;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-secondary);
+    transition: all 150ms ease;
+  }
+
+  .tech-tag:hover {
+    background-color: var(--color-primary);
+    color: var(--color-primary-content);
+    border-color: var(--color-primary);
+  }
+</style>

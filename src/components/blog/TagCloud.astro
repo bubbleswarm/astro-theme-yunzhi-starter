@@ -1,0 +1,30 @@
+---
+interface Props {
+  tags: { name: string; count: number }[];
+  currentTag?: string;
+}
+
+const { tags, currentTag } = Astro.props;
+---
+
+<div class="flex flex-wrap gap-2">
+  {
+    tags.map(({ name, count }) => {
+      const isCurrent = name === currentTag;
+      return (
+        <a
+          href={`/tags/${encodeURIComponent(name)}/`}
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm transition-all no-underline hover:no-underline hover:scale-105 hover:shadow-sm"
+          class:list={[
+            isCurrent
+              ? 'bg-primary/10 border border-primary text-primary font-semibold hover:bg-primary/20'
+              : 'bg-base-200 border border-base-300 text-base-content hover:bg-base-300',
+          ]}
+        >
+          {name}
+          <span class="ml-1 opacity-70">({count})</span>
+        </a>
+      );
+    })
+  }
+</div>

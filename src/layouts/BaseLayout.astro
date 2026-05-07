@@ -1,0 +1,139 @@
+---
+import { SEO } from 'astro-seo';
+import { AUTHOR_NAME, SITE_DESCRIPTION, SITE_FAVICON, SITE_TITLE, SITE_URL } from '../consts';
+import { config } from '../config';
+import '../styles/theme.css';
+import '../styles/fonts.css';
+import '../styles/global.css';
+import Footer from '../components/layout/Footer.astro';
+import HeaderWithProvider from '../components/layout/HeaderWithProvider.astro';
+import { SearchModal } from '../components/ui/SearchModal';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  pubDate?: number;
+  updatedDate?: number;
+  author?: string;
+  tags?: string[];
+  canonical?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  image,
+  type = 'website',
+  pubDate,
+  updatedDate,
+  author = AUTHOR_NAME,
+  tags,
+  canonical,
+  noindex,
+} = Astro.props;
+
+const pageTitle = title ? `${title} | ${SITE_TITLE}` : SITE_TITLE;
+const ogImage = image
+  ? image.startsWith('http')
+    ? image
+    : `${SITE_URL}${image}`
+  : `${SITE_URL}/og-default.png`;
+const canonicalUrl = canonical
+  ? canonical.startsWith('http')
+    ? canonical
+    : `${SITE_URL}${canonical}`
+  : `${SITE_URL}${Astro.url.pathname}`;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="yunzhi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href={SITE_FAVICON} />
+    <link rel="llms" href="/llms.txt" />
+    <SEO
+      title={title}
+      titleDefault={SITE_TITLE}
+      titleTemplate={`%s | ${SITE_TITLE}`}
+      description={description}
+      canonical={canonicalUrl}
+      noindex={noindex}
+      openGraph={{
+        basic: {
+          title: pageTitle,
+          type: type === 'article' ? 'article' : 'website',
+          image: ogImage,
+          url: canonicalUrl,
+        },
+        optional: {
+          siteName: SITE_TITLE,
+          locale: 'zh_CN',
+        },
+        article:
+          type === 'article'
+            ? {
+                publishedTime: pubDate ? new Date(pubDate).toISOString() : undefined,
+                modifiedTime: updatedDate ? new Date(updatedDate).toISOString() : undefined,
+                tags,
+              }
+            : undefined,
+        image: {
+          alt: pageTitle,
+        },
+      }}
+      twitter={{
+        card: 'summary_large_image',
+        title: pageTitle,
+        description,
+        image: ogImage,
+      }}
+      extend={{
+        link: [{ rel: 'sitemap', href: '/sitemap-index.xml' }],
+        meta: [{ name: 'author', content: author }],
+      }}
+    />
+  </head>
+  <body class="bg-base-100 text-base-content">
+    <div class="min-h-screen flex flex-col">
+      <HeaderWithProvider />
+      <main class="main-container flex-1 max-w-400 mx-auto w-full">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+    {config.features.search && <SearchModal client:idle />}
+    <style is:global>
+      .main-container {
+        padding: 24px;
+      }
+      @media (max-width: 767px) {
+        .main-container {
+          padding: 16px 12px;
+        }
+      }
+      @media (max-width: 374px) {
+        .main-container {
+          padding: 12px 8px;
+        }
+      }
+    </style>
+    <script is:inline>
+      (function() {
+        function formatLocal(ts) {
+          var d = new Date(ts);
+          var pad = function(n) { return (n < 10 ? '0' : '') + n; };
+          return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
+                 pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        }
+        document.querySelectorAll('[data-local-time]').forEach(function(el) {
+          var ts = Number(el.dataset.localTime);
+          if (!isNaN(ts)) el.textContent = formatLocal(ts);
+        });
+      })();
+    </script>
+  </body>
+</html>

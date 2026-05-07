@@ -1,0 +1,45 @@
+---
+import type { Moment } from '../../types/blog';
+import { formatDateTimeSeconds } from '../../utils/formatDate';
+
+interface Props {
+  moment: Moment;
+  showDate?: boolean;
+}
+
+const { moment, showDate = true } = Astro.props;
+---
+
+<div class="moment-card">
+  {showDate && (
+    <div class="moment-date">
+      <span class="text-xs font-medium" style="color: var(--color-text-muted);" data-local-time={moment.data.pubDate}>{formatDateTimeSeconds(moment.data.pubDate)}</span>
+    </div>
+  )}
+  <div class="moment-content text-sm leading-relaxed">
+    {moment.body}
+  </div>
+</div>
+
+<style>
+  .moment-card {
+    padding: 12px 0;
+  }
+  .moment-date {
+    margin-bottom: 6px;
+  }
+  .moment-content {
+    color: var(--color-text-primary);
+  }
+  .moment-content :global(p) {
+    margin: 0;
+  }
+  .moment-content :global(p + p) {
+    margin-top: 6px;
+  }
+  .moment-content :global(img) {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+</style>

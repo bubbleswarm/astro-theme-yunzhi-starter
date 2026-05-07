@@ -1,0 +1,50 @@
+---
+export const prerender = true;
+
+import PostList from '../../components/blog/PostList.astro';
+import ResponsiveSidebarSection from '../../components/layout/ResponsiveSidebarSection.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import { CategoryList } from '../../components/sidebar/CategoryList';
+import Sidebar from '../../components/sidebar/Sidebar.astro';
+import { SITE_URL } from '../../consts';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageLayout from '../../layouts/PageLayout.astro';
+import { getAllCategories, getAllPosts } from '../../utils/posts';
+import { getSidebarData } from '../../utils/sidebar';
+
+const posts = await getAllPosts();
+const categories = await getAllCategories();
+const sidebarData = await getSidebarData();
+---
+
+<BaseLayout title="归档文章">
+  <JsonLd
+    type="breadcrumb"
+    items={[
+      { name: '首页', url: SITE_URL },
+      { name: '归档', url: `${SITE_URL}/blog/` },
+    ]}
+  />
+  <PageLayout layout="three-col">
+    <div slot="leftSidebar">
+      <ResponsiveSidebarSection title="文章分类">
+        <CategoryList
+          categories={categories}
+          activeCategory={null}
+          client:load
+        />
+      </ResponsiveSidebarSection>
+    </div>
+
+    <div slot="rightSidebar">
+      <Sidebar data={sidebarData} />
+    </div>
+
+    <div class="page-header-bar">
+      <h1 class="page-title">全部文章</h1>
+      <span class="text-sm text-(--text-secondary)">共 {posts.length} 篇</span>
+    </div>
+
+    <PostList posts={posts} pageSize={10} />
+  </PageLayout>
+</BaseLayout>

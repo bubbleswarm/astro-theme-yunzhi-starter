@@ -1,0 +1,73 @@
+---
+import type { Moment } from '../../types/blog';
+import MomentCard from './MomentCard.astro';
+
+interface Props {
+  moments: Moment[];
+}
+
+const { moments } = Astro.props;
+---
+
+<div class="moments-timeline">
+  {moments.map((moment, index) => (
+    <div class="timeline-item">
+      <div class="timeline-marker">
+        <div class="timeline-dot" />
+        {index < moments.length - 1 && <div class="timeline-line" />}
+      </div>
+      <div class="timeline-content">
+        <MomentCard moment={moment} />
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .moments-timeline {
+    display: flex;
+    flex-direction: column;
+  }
+  .timeline-item {
+    display: flex;
+    gap: 12px;
+  }
+  .timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20px;
+    flex-shrink: 0;
+    padding-top: 16px;
+  }
+  .timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    flex-shrink: 0;
+  }
+  .timeline-line {
+    width: 2px;
+    flex: 1;
+    background-color: var(--color-base-300);
+    margin-top: 4px;
+  }
+  .timeline-content {
+    flex: 1;
+    min-width: 0;
+  }
+  @media (max-width: 767px) {
+    .timeline-item {
+      gap: 8px;
+    }
+    .timeline-marker {
+      width: 16px;
+      padding-top: 12px;
+    }
+    .timeline-dot {
+      width: 8px;
+      height: 8px;
+    }
+  }
+</style>

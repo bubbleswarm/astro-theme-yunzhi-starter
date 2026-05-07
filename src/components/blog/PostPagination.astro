@@ -1,0 +1,76 @@
+---
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
+
+interface Props {
+  total: number;
+  pageSize: number;
+}
+
+const { total, pageSize } = Astro.props;
+const totalPages = Math.ceil(total / pageSize);
+---
+
+<div class="pagination-wrapper mt-8 flex flex-wrap items-center justify-between gap-4 rounded-lg px-4 py-3 bg-base-200">
+  <div class="pagination-container flex flex-wrap items-center justify-center gap-4" id="post-list-pagination">
+    <div class="join">
+      <button type="button" class="join-item btn btn-sm" data-action="prev" disabled>
+        «
+      </button>
+      <div id="page-numbers" class="contents">
+        {Array.from({ length: totalPages }, (_, i) => {
+          const pageNum = i + 1;
+          const isActive = pageNum === 1;
+          return (
+            <button
+              type="button"
+              class:list={['join-item', 'btn', 'btn-sm', { 'btn-active': isActive }]}
+              data-page={pageNum}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
+      </div>
+      <button type="button" class="join-item btn btn-sm" data-action="next">
+        »
+      </button>
+    </div>
+    <span class="text-sm text-base-content/50">共 {total} 条</span>
+  </div>
+
+  <div class="flex justify-end" id="post-list-page-size">
+    <div class="dropdown dropdown-end" id="page-size-dropdown">
+      <button
+        type="button"
+        aria-label="每页条数"
+        aria-expanded="false"
+        class="select select-xs w-24 bg-base-300 border border-base-content/20 focus:border-primary focus:outline-2 focus:outline-primary focus:outline-offset-2"
+        id="page-size-trigger"
+      >
+        {pageSize} 条/页
+      </button>
+      <ul class="dropdown-content menu bg-base-100/80 dark:bg-base-100/60 backdrop-blur-md shadow-lg border border-base-content/10 rounded-box z-50 w-24 p-1 mt-1">
+        {PAGE_SIZE_OPTIONS.map((opt) => (
+          <li>
+            <button
+              type="button"
+              data-value={opt}
+              class:list={[
+                'w-full',
+                'text-left',
+                'justify-center',
+                'px-2',
+                'py-1',
+                'text-sm',
+                { active: pageSize === opt },
+              ]}
+            >
+              {opt} 条/页
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+---
+import type { BlogPost } from '../../types/blog';
+import ArticleSchema from './schemas/ArticleSchema.astro';
+import BreadcrumbSchema from './schemas/BreadcrumbSchema.astro';
+import FaqSchema from './schemas/FaqSchema.astro';
+import PersonSchema from './schemas/PersonSchema.astro';
+import WebsiteSchema from './schemas/WebsiteSchema.astro';
+
+interface ArticleProps {
+  type: 'article';
+  post: BlogPost;
+  wordCount?: number;
+}
+
+interface WebsiteProps {
+  type: 'website';
+}
+
+interface BreadcrumbProps {
+  type: 'breadcrumb';
+  items: Array<{ name: string; url: string }>;
+}
+
+interface PersonProps {
+  type: 'person';
+  name: string;
+  url?: string;
+  email?: string;
+  image?: string;
+  sameAs?: string[];
+}
+
+interface FaqProps {
+  type: 'faq';
+  questions: Array<{ question: string; answer: string }>;
+}
+
+type Props = ArticleProps | WebsiteProps | BreadcrumbProps | PersonProps | FaqProps;
+
+const props = Astro.props;
+---
+
+{props.type === 'article' && <ArticleSchema post={props.post} wordCount={props.wordCount} />}
+
+{props.type === 'website' && <WebsiteSchema />}
+
+{props.type === 'breadcrumb' && <BreadcrumbSchema items={props.items} />}
+
+{props.type === 'person' && (
+  <PersonSchema
+    name={props.name}
+    url={props.url}
+    email={props.email}
+    image={props.image}
+    sameAs={props.sameAs}
+  />
+)}
+
+{props.type === 'faq' && <FaqSchema questions={props.questions} />}

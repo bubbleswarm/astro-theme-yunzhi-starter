@@ -1,0 +1,142 @@
+.container {
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  overflow: visible;
+}
+
+.grid {
+  position: relative;
+  margin: 0 auto;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.gridVisible {
+  opacity: 1;
+}
+
+.empty {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.hexCell {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.25s ease,
+    z-index 0s;
+  animation: hexFadeIn 0.5s ease-out forwards;
+  animation-delay: var(--hex-delay, 0ms);
+  opacity: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hexCell:hover {
+  transform: scale(1.15) translateY(-4px);
+  filter: drop-shadow(0 8px 16px color-mix(in oklch, var(--hex-base-color) 40%, transparent));
+  z-index: var(--z-dropdown);
+}
+
+.hexShape {
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--hex-size) * 0.06) calc(var(--hex-size) * 0.12);
+  text-align: center;
+  background-color: color-mix(
+    in oklch,
+    var(--hex-base-color) var(--hex-mix, 50%),
+    var(--color-base-200)
+  );
+  transition: background-color 0.2s ease;
+}
+
+.hexCell:hover .hexShape {
+  background-color: color-mix(
+    in oklch,
+    var(--hex-base-color) calc(var(--hex-mix, 50%) + 20%),
+    var(--color-base-200)
+  );
+}
+
+.hexName {
+  font-weight: 600;
+  line-height: 1.2;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-base-content);
+  font-size: calc(var(--hex-size) * 0.4);
+}
+
+.hexCount {
+  font-size: calc(var(--hex-size) * 0.28);
+  line-height: 1.2;
+  opacity: 0.7;
+  margin-top: calc(var(--hex-size) * 0.04);
+  color: var(--color-base-content);
+}
+
+/* Size level variations */
+.level1 {
+  --hex-mix: 20%;
+}
+.level1 .hexCount {
+  display: none;
+}
+
+.level2 {
+  --hex-mix: 35%;
+}
+.level2 .hexCount {
+  display: none;
+}
+
+.level3 {
+  --hex-mix: 55%;
+}
+
+.level4 {
+  --hex-mix: 75%;
+}
+
+.level5 {
+  --hex-mix: 95%;
+}
+
+@keyframes hexFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  .container {
+    min-height: 200px;
+  }
+
+  .hexCell:hover {
+    transform: none;
+    filter: none;
+  }
+}

@@ -1,0 +1,37 @@
+---
+import { Menu } from 'lucide-react';
+import { SITE_TITLE } from '../../consts';
+import { config } from '../../config';
+import { SearchButton } from '../ui/SearchButton.tsx';
+import { ThemeToggle } from '../ui/ThemeToggle.tsx';
+import MobileDrawer from './MobileDrawer.tsx';
+import NavMenu from './NavMenu.astro';
+---
+
+<header class="fixed top-0 left-0 right-0 z-(--z-header) glass">
+  <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold text-primary no-underline hover:no-underline">{SITE_TITLE}</a>
+
+    <div class="flex items-center gap-4">
+      <NavMenu />
+      {config.features.search && <SearchButton client:load />}
+      <ThemeToggle client:load />
+      <button
+        class="md:hidden btn btn-ghost btn-sm btn-square"
+        aria-label="打开菜单"
+        id="mobile-menu-btn"
+      >
+        <Menu class="w-5 h-5" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="h-16"></div>
+<MobileDrawer client:load />
+
+<script>
+  document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('toggle-mobile-drawer'));
+  });
+</script>

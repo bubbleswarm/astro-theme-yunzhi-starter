@@ -1,0 +1,78 @@
+---
+import type { BlogPost } from '../../types/blog';
+
+interface Props {
+  prev?: BlogPost;
+  next?: BlogPost;
+}
+
+const { prev, next } = Astro.props;
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
+  <div>
+    {
+      prev ? (
+        <a
+          href={`/blog/${prev.hash || prev.slug}/`}
+          class="block p-5 rounded-xl border border-base-300 bg-base-200/90 backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lg"
+        >
+          <div class="flex items-center gap-1 text-sm text-base-content/50 mb-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            上一篇
+          </div>
+          <div class="font-semibold text-base-content line-clamp-2">{prev.data.title}</div>
+        </a>
+      ) : (
+        <div class="p-5 rounded-xl border border-dashed border-base-300 bg-base-200/50 opacity-60 text-center">
+          <div class="text-sm text-base-content/50">没有更早的文章</div>
+        </div>
+      )
+    }
+  </div>
+
+  <div>
+    {
+      next ? (
+        <a
+          href={`/blog/${next.hash || next.slug}/`}
+          class="block p-5 rounded-xl border border-base-300 bg-base-200/90 backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lg text-right"
+        >
+          <div class="flex items-center justify-end gap-1 text-sm text-base-content/50 mb-2">
+            下一篇
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </div>
+          <div class="font-semibold text-base-content line-clamp-2">{next.data.title}</div>
+        </a>
+      ) : (
+        <div class="p-5 rounded-xl border border-dashed border-base-300 bg-base-200/50 opacity-60 text-center">
+          <div class="text-sm text-base-content/50">没有更新的文章</div>
+        </div>
+      )
+    }
+  </div>
+</div>

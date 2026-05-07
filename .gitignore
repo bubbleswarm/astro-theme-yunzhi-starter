@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+# .env (已根据要求加入版本控制)
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Astro
+.astro/
+
+# Claude Code
+.claude/
+
+# Git worktrees
+.worktrees/
+worktrees/
+
+# Wrangler local state
+.wrangler/state/
+
+# Wrangler config (已取消忽略，配置已通用化)
+# wrangler.toml
+
+# Debug scripts
+debug-radius.js
+debug-radius.mjs
+
+# Superpowers plans (local only)
+docs/superpowers/plans/

@@ -1,0 +1,129 @@
+---
+export const prerender = true;
+
+import PostList from '../../components/blog/PostList.astro';
+import TagCloud from '../../components/blog/TagCloud.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import Sidebar from '../../components/sidebar/Sidebar.astro';
+import { SITE_URL } from '../../consts';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageLayout from '../../layouts/PageLayout.astro';
+import { getAllTags, getPostsByTag } from '../../utils/posts';
+import { getSidebarData } from '../../utils/sidebar';
+
+export async function getStaticPaths() {
+  const tags = await getAllTags();
+  return tags.map(({ name }) => ({
+    params: { tag: name },
+    props: { tag: name },
+  }));
+}
+
+const { tag: rawTag } = Astro.params;
+if (!rawTag) {
+  return Astro.redirect('/404');
+}
+
+// URL 解码中文标签名
+const tag = decodeURIComponent(rawTag);
+const posts = await getPostsByTag(tag);
+const allTags = await getAllTags();
+const sidebarData = await getSidebarData();
+---
+
+<BaseLayout title={`标签：${tag}`}>
+  <JsonLd
+    type="breadcrumb"
+    items={[
+      { name: '首页', url: SITE_URL },
+      { name: '标签', url: `${SITE_URL}/tags/` },
+      { name: tag, url: `${SITE_URL}/tags/${encodeURIComponent(tag)}/` },
+    ]}
+  />
+  <PageLayout layout="three-col">
+    <!-- 左侧边栏：标签列表 -->
+    <div slot="leftSidebar" class="left-sidebar-content">
+      <div class="sidebar-card">
+        <h3 class="sidebar-title">标签</h3>
+        <TagCloud tags={allTags} currentTag={tag} />
+      </div>
+    </div>
+
+    <!-- 右侧边栏：与其他页面一致的侧边栏 -->
+    <div slot="rightSidebar">
+      <Sidebar data={sidebarData} />
+    </div>
+
+    <!-- 中间主内容区 -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">标签：{tag}</h1>
+        <span class="post-count">共 {posts.length} 篇</span>
+      </div>
+
+      {posts.length > 0 ? (
+        <PostList posts={posts} pageSize={10} />
+      ) : (
+        <div class="empty-state" style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-secondary)' }}>
+          <p>该标签下暂无文章</p>
+          <a href="/tags/" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>查看所有标签 →</a>
+        </div>
+      )}
+    </main>
+  </PageLayout>
+</BaseLayout>
+
+<style>
+  .left-sidebar-content {
+    position: sticky;
+    top: 88px;
+    height: fit-content;
+  }
+
+  .sidebar-card {
+    background: color-mix(in oklch, var(--color-base-200) 90%, transparent);
+    border: 1px solid var(--color-base-300);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  .main-content {
+    min-height: 60vh;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    background: color-mix(in oklch, var(--color-base-200) 90%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  .post-count {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+</style>

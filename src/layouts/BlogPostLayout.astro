@@ -1,0 +1,90 @@
+---
+import ArticleContentCard from '../components/blog/ArticleContentCard.astro';
+import ArticleSummary from '../components/blog/ArticleSummary.astro';
+import ArticleTitleCard from '../components/blog/ArticleTitleCard.astro';
+import CommentsCard from '../components/blog/CommentsCard.astro';
+import PostNavigation from '../components/blog/PostNavigation.astro';
+import { TableOfContents } from '../components/blog/TableOfContents';
+import { GiscusComments } from '../components/giscus/GiscusComments';
+import ResponsiveSidebarSection from '../components/layout/ResponsiveSidebarSection.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import { ArticleTracker } from '../components/umami';
+import { config } from '../config';
+import { SITE_URL } from '../consts';
+import type { BlogPost, Heading } from '../types/blog';
+import { getReadingTime } from '../utils/readingTime';
+import BaseLayout from './BaseLayout.astro';
+import PageLayout from './PageLayout.astro';
+
+interface Props {
+  post: BlogPost;
+  prev?: BlogPost;
+  next?: BlogPost;
+  headings: Heading[];
+}
+
+const { post, prev, next, headings } = Astro.props;
+const readingTime = getReadingTime(post.body ?? '');
+const wordCount = (post.body ?? '').replace(/\s+/g, '').length;
+
+const postUrl = `${SITE_URL}/blog/${post.hash || post.slug}/`;
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  type="article"
+  pubDate={post.data.pubDate}
+  updatedDate={post.data.updatedDate}
+  tags={post.data.tags}
+  image={post.data.heroImage}
+>
+  <JsonLd type="article" post={post} wordCount={wordCount} />
+  <JsonLd
+    type="breadcrumb"
+    items={[
+      { name: '首页', url: SITE_URL },
+      { name: '归档', url: `${SITE_URL}/blog/` },
+      { name: post.data.title, url: postUrl },
+    ]}
+  />
+  {post.data.schemaType === 'faq' && post.data.faq && (
+    <JsonLd type="faq" questions={post.data.faq} />
+  )}
+  <PageLayout layout="two-col-right">
+    <div slot="leftSidebar">
+      <ResponsiveSidebarSection title="文章目录">
+        <TableOfContents client:visible headings={headings} />
+      </ResponsiveSidebarSection>
+    </div>
+
+    <article>
+      <ArticleTitleCard
+        title={post.data.title}
+        pubDate={post.data.pubDate}
+        readingTime={readingTime}
+        wordCount={wordCount}
+        category={post.data.category}
+        tags={post.data.tags}
+      />
+
+      {post.data.summary && (
+        <ArticleSummary summary={post.data.summary} />
+      )}
+
+      <ArticleContentCard>
+        <slot />
+      </ArticleContentCard>
+
+      <PostNavigation prev={prev} next={next} />
+
+      {config.features.comments && (
+        <CommentsCard>
+          <GiscusComments client:visible slug={post.id} />
+        </CommentsCard>
+      )}
+    </article>
+
+    {config.features.analytics && <ArticleTracker client:visible slug={post.id} />}
+  </PageLayout>
+</BaseLayout>

@@ -1,0 +1,21 @@
+---
+interface Props {
+  summary: string;
+}
+
+const { summary } = Astro.props;
+---
+
+<div class="article-summary alert alert-info mb-6 border border-info/30 bg-info/10">
+  <div class="flex items-start gap-3">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 shrink-0 text-info">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="16" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>
+    <div>
+      <span class="font-semibold text-info-content text-sm">摘要</span>
+      <p class="text-info-content/90 text-sm mt-1 leading-relaxed">{summary}</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+---
+export const prerender = true;
+
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import BlogPostLayout from '../../layouts/BlogPostLayout.astro';
+import type { BlogPost } from '../../types/blog';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  const allPosts = posts.sort((a, b) => b.data.pubDate - a.data.pubDate);
+
+  // 导入 hash 工具
+  const { generateHashMap } = await import('../../utils/hash');
+  const ids = allPosts.map((p) => p.id);
+  const hashMap = generateHashMap(ids);
+
+  // 预处理索引映射，避免 O(n²) 的 findIndex
+  const indexMap = new Map<string, number>();
+  allPosts.forEach((post, index) => {
+    indexMap.set(post.id, index);
+  });
+
+  const mapToBlogPostWithHash = (entry: CollectionEntry<'blog'>): BlogPost => {
+    const hash = hashMap.get(entry.id) ?? entry.id;
+    return {
+      id: entry.id,
+      slug: hash,
+      hash: hash,
+      data: entry.data,
+      body: entry.body,
+    };
+  };
+
+  return allPosts.map((post) => {
+    const currentIndex = indexMap.get(post.id) ?? 0;
+
+    const prevEntry = allPosts[currentIndex + 1];
+    const nextEntry = allPosts[currentIndex - 1];
+
+    const hash = hashMap.get(post.id) ?? post.id;
+
+    return {
+      params: { slug: hash },
+      props: {
+        postEntry: post,
+        post: mapToBlogPostWithHash(post),
+        prev: prevEntry ? mapToBlogPostWithHash(prevEntry) : undefined,
+        next: nextEntry ? mapToBlogPostWithHash(nextEntry) : undefined,
+      },
+    };
+  });
+}
+
+const { postEntry, post, prev, next } = Astro.props;
+const { Content, headings } = await render(postEntry);
+---
+
+<BlogPostLayout post={post} prev={prev} next={next} headings={headings}>
+  <Content />
+</BlogPostLayout>

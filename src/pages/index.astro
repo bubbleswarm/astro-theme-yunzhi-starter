@@ -1,0 +1,42 @@
+---
+export const prerender = true;
+
+import PostCard from '../components/blog/PostCard.astro';
+import { DailyWallpaperHero } from '../components/hero/DailyWallpaperHero';
+import JsonLd from '../components/seo/JsonLd.astro';
+import Sidebar from '../components/sidebar/Sidebar.astro';
+import { ViewAllButton } from '../components/ui/ViewAllButton';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageLayout from '../layouts/PageLayout.astro';
+import { getAllPosts } from '../utils/posts';
+import { getSidebarData } from '../utils/sidebar';
+
+const posts = await getAllPosts();
+const sidebarData = await getSidebarData();
+const recentPosts = posts.slice(0, 5);
+---
+
+<BaseLayout>
+  <JsonLd type="website" />
+  <DailyWallpaperHero client:load siteTitle={SITE_TITLE} siteDescription={SITE_DESCRIPTION} />
+
+  <PageLayout layout="two-col-left">
+    <div slot="rightSidebar">
+      <Sidebar data={sidebarData} />
+    </div>
+
+    <section class="content-section">
+      <h2 class="text-2xl font-semibold mb-8 text-(--text-primary)">最新文章</h2>
+      <div class="flex flex-col gap-5">
+        {recentPosts.map((post, index) => (
+          <PostCard post={post} index={index} />
+        ))}
+      </div>
+      <div class="text-center mt-8 pt-6 border-t border-(--border)">
+        <ViewAllButton href="/blog/" client:visible />
+      </div>
+    </section>
+
+  </PageLayout>
+</BaseLayout>

@@ -1,0 +1,65 @@
+---
+import { Calendar, Clock } from 'lucide-react';
+import type { BlogPost } from '../../types/blog';
+import { formatDate } from '../../utils/formatDate';
+import { getReadingTime } from '../../utils/readingTime';
+
+interface Props {
+  post: BlogPost;
+  index?: number;
+  size?: 'default' | 'large';
+}
+
+const { post, index = 0, size = 'default' } = Astro.props;
+const isLarge = size === 'large';
+const readingTime = getReadingTime(post.body ?? '');
+const href = `/blog/${post.hash || post.slug}/`;
+const staggerClass = `stagger-${Math.min(index + 1, 5)}`;
+---
+
+<div
+  class:list={[
+    'card',
+    'bg-base-200',
+    'hover:bg-base-300',
+    'border',
+    'border-base-300',
+    'transition-all',
+    'duration-300',
+    'hover:-translate-y-0.5',
+    'hover:shadow-md',
+    'animate-fade-in-up',
+    staggerClass,
+    'group',
+    'relative',
+    'mb-6',
+    { 'featured-card': isLarge },
+  ]}
+>
+  <a href={href} class="absolute inset-0 z-0 no-underline hover:no-underline" aria-hidden="true" tabindex="-1" />
+  <div class:list={['card-body', 'relative', 'z-10', 'pointer-events-none', isLarge ? 'p-8' : 'p-6']}>
+    <h2 class:list={['card-title', 'font-bold', 'text-base-content', 'group-hover:text-primary', 'transition-colors', 'mt-0', 'mb-3', isLarge ? 'text-2xl' : 'text-xl']}>
+      {post.data.title}
+    </h2>
+    <p class:list={['text-base-content/70', 'mb-4', 'leading-relaxed', isLarge ? 'text-base line-clamp-3' : 'text-sm line-clamp-2']}>
+      {post.data.description}
+    </p>
+    <div class="flex flex-wrap items-center gap-4 text-sm text-base-content/50 pointer-events-auto">
+      <span class="flex items-center gap-1.5" data-local-time={post.data.pubDate}>
+        <Calendar class="w-4 h-4" />
+        {formatDate(post.data.pubDate)}
+      </span>
+      <span class="flex items-center gap-1.5">
+        <Clock class="w-4 h-4" />
+        {readingTime} 分钟阅读
+      </span>
+    </div>
+    <div class="flex flex-wrap items-center gap-2 mt-2 pointer-events-auto">
+      {post.data.tags?.map((tag) => (
+        <a href={`/tags/${encodeURIComponent(tag)}/`} class="tag-badge pointer-events-auto">
+          {tag}
+        </a>
+      ))}
+    </div>
+  </div>
+</div>

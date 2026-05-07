@@ -1,0 +1,101 @@
+---
+interface Props {
+  layout?: 'three-col' | 'two-col-left' | 'two-col-right';
+}
+
+const { layout = 'two-col-left' } = Astro.props;
+---
+
+<div class={`page-layout page-layout--${layout}`}>
+  {layout !== 'two-col-left' && (
+    <aside class="left-sidebar">
+      <slot name="leftSidebar" />
+    </aside>
+  )}
+
+  <main class="main-content">
+    <slot />
+  </main>
+
+  {layout !== 'two-col-right' && (
+    <aside class="right-sidebar">
+      <slot name="rightSidebar" />
+    </aside>
+  )}
+</div>
+
+<style>
+  .page-layout {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    display: grid;
+    gap: 24px;
+  }
+
+  .page-layout--three-col {
+    grid-template-columns: 200px 1fr 280px;
+  }
+
+  .page-layout--two-col-left {
+    grid-template-columns: 1fr 300px;
+  }
+
+  .page-layout--two-col-right {
+    grid-template-columns: 260px 1fr;
+  }
+
+  .left-sidebar,
+  .right-sidebar {
+    position: sticky;
+    top: 88px;
+    height: fit-content;
+  }
+
+  .main-content {
+    min-height: 60vh;
+    order: 1;
+  }
+  .left-sidebar {
+    order: 0;
+  }
+  .right-sidebar {
+    order: 2;
+  }
+
+  @media (max-width: 1200px) {
+    .page-layout--three-col {
+      grid-template-columns: 180px 1fr 260px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .page-layout {
+      padding: 16px 12px;
+      gap: 16px;
+    }
+    .page-layout--three-col,
+    .page-layout--two-col-left,
+    .page-layout--two-col-right {
+      grid-template-columns: 1fr;
+    }
+
+    .left-sidebar,
+    .right-sidebar {
+      position: static;
+      height: auto;
+      order: 2;
+    }
+
+    .main-content {
+      order: 1;
+    }
+  }
+
+  @media (max-width: 374px) {
+    .page-layout {
+      padding: 12px 8px;
+      gap: 12px;
+    }
+  }
+</style>

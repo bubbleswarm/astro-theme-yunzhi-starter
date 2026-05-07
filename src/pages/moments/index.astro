@@ -1,0 +1,42 @@
+---
+export const prerender = true;
+
+import MomentsTimeline from '../../components/moments/MomentsTimeline.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import Sidebar from '../../components/sidebar/Sidebar.astro';
+import { SITE_TITLE, SITE_URL } from '../../consts';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageLayout from '../../layouts/PageLayout.astro';
+import { getAllMoments } from '../../utils/moments';
+import { getSidebarData } from '../../utils/sidebar';
+
+const moments = await getAllMoments();
+const sidebarData = await getSidebarData();
+---
+
+<BaseLayout title={`说说 - ${SITE_TITLE}`}>
+  <JsonLd
+    type="breadcrumb"
+    items={[
+      { name: '首页', url: SITE_URL },
+      { name: '说说', url: `${SITE_URL}/moments/` },
+    ]}
+  />
+  <PageLayout layout="two-col-left">
+    <div slot="rightSidebar">
+      <Sidebar data={sidebarData} />
+    </div>
+
+    <section class="content-section">
+      <div class="page-header-bar">
+        <h1 class="page-title">说说</h1>
+        <span class="text-sm text-(--text-secondary)">共 {moments.length} 条</span>
+      </div>
+      {moments.length === 0 ? (
+        <p class="text-base-content/50 text-center py-12">还没有说说～</p>
+      ) : (
+        <MomentsTimeline moments={moments} />
+      )}
+    </section>
+  </PageLayout>
+</BaseLayout>
